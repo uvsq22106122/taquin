@@ -33,11 +33,14 @@ def init(canvas):
     
 
 
-
-
 # def affichage(event):
 #     print("clic aux coordonnées ", event.x , event.y)
-    
+
+def clic(event):
+    global LARG_CASES, HAUT_CASES, tab
+    x, y = event.x, event.y
+
+
 
 
 def generer(tab):
@@ -49,24 +52,23 @@ def generer(tab):
 
 
 
-
 #Main-----------------------------------#
 
 
 #---------------Fenetre------------------#
 racine = tk.Tk()
+racine.title ("Taquin")
 #----------------Widget------------------#
 
 #---Canvas---#
 canvas = tk.Canvas(racine, bg="black", width=LARGEUR, height=HAUTEUR)
 canvas.grid()
 tableau = init(canvas)
+
 # canvas.bind("<Button-1>", affichage)
+
+canvas.bind ("<Button-1>", clic)
 
 #----Menu----#
 
-
-
 racine.mainloop()
-
-
