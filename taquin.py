@@ -9,6 +9,7 @@
 import tkinter as tk
 import random
 
+
 #Constantes-----------------------------#
 LARGEUR = 500
 HAUTEUR = 500
@@ -32,15 +33,17 @@ def init(canvas):
                 canvas.create_text(((2*i+1)*LARG_CASES/2), ((2*j+1)*HAUT_CASES/2), text=L[j][i], fill='black', font=('Helvetica', '32'))
     
 
-
 # def affichage(event):
 #     print("clic aux coordonnées ", event.x , event.y)
 
-def clic(event):
+
+def affichage(event):
     global LARG_CASES, HAUT_CASES, tab
-    x, y = event.x, event.y
+    j,  i= event.x, event.y
+    i=event.y//100
+    j=event.x//100
 
-
+#### suite deplacement à venir######
 
 
 def generer(tab):
@@ -52,22 +55,81 @@ def generer(tab):
 
 
 
+
+
+
+
+#------Victoire----#
+
+
+
+taquin_gagner= [[1, 2, 3, 4],
+                [5, 6, 7, 8],
+                [9, 10, 11, 12],
+                [13, 14, 15, 16]]
+
+###print (taquin_gagner == "melanger")####
+
+
+
+
+#-------Sauvegarde et recharge-------#
+def sauvegarde():
+    fic=open("sauvegarde", "w")
+    for i in range(4):
+        for j in range(4):
+            fic.write(str(generer[i][j]) + "\n")
+    fic.close()
+    
+
+def recharger():
+    global LARG_CASES, HAUT_CASES, tab
+    fic=open("sauvegarde", "r")
+    ligne=fic.readlines() 
+    l=0 
+    for i in range(4): 
+        for j in range(4):
+            generer[i][j]=int(ligne[l]) 
+            l+=1 
+    fic.close()
+    return init()
+
+
+def annuler():
+    deplacement = deplacement - 1
+    pass
+
+
+
 #Main-----------------------------------#
 
 
+##################################################
 #---------------Fenetre------------------#
 racine = tk.Tk()
 racine.title ("Taquin")
-#----------------Widget------------------#
 
 #---Canvas---#
 canvas = tk.Canvas(racine, bg="black", width=LARGEUR, height=HAUTEUR)
 canvas.grid()
 tableau = init(canvas)
 
-# canvas.bind("<Button-1>", affichage)
+#-------- Definition des Widgets------------------#
 
-canvas.bind ("<Button-1>", clic)
+bouton_sauvegarder= tk.Button(racine, text="Sauvegarder", command=sauvegarde)
+bouton_recharger = tk.Button(racine, text="Charger",command=recharger)
+bouton_annuler = tk.Button(racine, text="Annuler deplacement",command=annuler)
+
+#--------- Placement des widgets---------#
+bouton_sauvegarder.grid( row=7, column=0,)
+
+bouton_recharger.grid(row=5, column=0)
+bouton_annuler.grid(row=6, column=0) 
+
+#--------liaison d'evenement--------#
+
+canvas.bind ("<Button-1>", affichage)
+
 
 #----Menu----#
 
