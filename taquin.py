@@ -9,131 +9,156 @@
 import tkinter as tk
 import random
 
-class Taquin:
-    def __init__(self):
-        # Constantes-----------------------------#
-        self.LARGEUR = 500
-        self.HAUTEUR = 500
-        self.CASES = 4
-        self.LARG_CASES = self.LARGEUR // self.CASES
-        self.HAUT_CASES = self.HAUTEUR // self.CASES
+# Constantes-----------------------------#
+LARGEUR = 500
+HAUTEUR = 500
+CASES = 4
+LARG_CASES = LARGEUR // CASES
+HAUT_CASES = HAUTEUR // CASES
 
-        self.taquin_win = [[1, 2, 3, 4],
-                           [5, 6, 7, 8],
-                           [9, 10, 11, 12],
-                           [13, 14, 15, 0]]
-
-        # Variables Global------------------------#
-        self.tab = self.generer()
-        self.history = [] #C'est la liste qui contient toutes les permutations (Pour pouvoir revenir en arrière)
-
-        ##################################################
-        # ---------------Fenetre------------------#
-        racine = tk.Tk()
-        racine.title("Taquin")
-
-        # ---Canvas---#
-        self.canvas = tk.Canvas(racine, bg="black", width=self.LARGEUR, height=self.HAUTEUR)
-        self.canvas.grid()
-        self.dessiner_tableau()
-
-        # -------- Definition des Widgets------------------#
-        self.bouton_sauvegarder = tk.Button(racine, text="Sauvegarder", command=self.sauvegarde)
-        self.bouton_recharger = tk.Button(racine, text="Charger", command=self.recharger)
-        self.bouton_annuler = tk.Button(racine, text="Annuler deplacement", command=self.annuler)
-
-        # --------- Placement des widgets---------#
-        self.bouton_sauvegarder.grid(row=5, column=0)
-        self.bouton_recharger.grid(row=6, column=0)
-        self.bouton_annuler.grid(row=7, column=0)
-
-        # --------liaison d'evenement--------#
-        self.canvas.bind("<Button-1>", self.clic)
-
-        # ----Menu----#
-        racine.mainloop()
-
-    def dessiner_tableau(self):
-        self.canvas.delete("all")
-        for i in range(self.CASES):
-            for j in range(self.CASES):
-                if self.tab[j][i] != 0:
-                    self.canvas.create_rectangle((i * self.LARG_CASES), (j * self.HAUT_CASES),
-                                                 ((i + 1) * self.LARG_CASES),
-                                                 ((j + 1) * self.HAUT_CASES), fill='grey', outline='white')
-                    self.canvas.create_text(((2 * i + 1) * self.LARG_CASES / 2), ((2 * j + 1) * self.HAUT_CASES / 2),
-                                            text=self.tab[j][i],
-                                            fill='black', font=('Helvetica', '32'))
-        self.victoire()
-
-    def generer(self):
-        t = [i for i in range(1, self.CASES ** 2)]
-        random.shuffle(t)
-        t.append(0)
-        t1 = [[t[i + j * self.CASES] for i in range(self.CASES)] for j in range(self.CASES)]
-        return t1
-
-    def get_position(self, num):  #permet de trouver un nombre dans le tableau ça cherche chaque ligne et chaque colonne
-        for i in range(len(self.tab)):
-            if num in self.tab[i]:
-                for j in range(len(self.tab[i])):
-                    if self.tab[i][j] == num:
-                        return i, j
-
-    def permuter(self, ligne, x, y, i, j):
-        while (x if ligne else y) != (j if ligne else i): #c'est la variable qui dit si il faut décaler verticalement ou horizontalement: Si il faut décaler horizontalement, on décale chaque case une par une
-                                                          #Et à chaque fois on augmente x de 1 si il faut aller vers la droite ou le diminue de 1 si il faut aller vers la gauche
-                                                          #On s'arrète que quand x == j
-            self.tab[y][x], self.tab[i][j] = self.tab[i][j], self.tab[y][x]#permet de permuter les deux valeurs
-            if ligne:
-                x += 1 if x <= j else -1
-            else:
-                y += 1 if y <= i else -1
-
-#on récupère les coordonnées x et y de la case, et on regarde si la case cliqué est à coté de la case 0#
-    def clic(self, event):
-        x = event.x // self.LARG_CASES
-        y = event.y // self.HAUT_CASES
-        i, j = self.get_position(0)
-
-        if (y != i and x != j) or (y == i and x == j):
-            return
-
-        self.permuter(y == i, x, y, i, j) 
-
-        self.dessiner_tableau()
-        self.history.append((i, j))
-
-    def sauvegarde(self):
-        with open("sauvegarde", "w") as fic:
-            for i in range(self.CASES):
-                for j in range(self.CASES):
-                    fic.write(str(self.tab[i][j]) + "\n")
-
-    def recharger(self):
-        with open("sauvegarde", "r") as fic:
-            ligne = fic.readlines()
-            for i in range(self.CASES):
-                for j in range(self.CASES):
-                    self.tab[i][j] = int(ligne[self.CASES * i + j])
-        self.history = []
-        self.dessiner_tableau()
-
-    def annuler(self):
-        if self.history:
-            y, x = self.history[-1]
-            i, j = self.get_position(0)
-
-            self.permuter(y == i, x, y, i, j)
-
-            del self.history[-1]
-
-            self.dessiner_tableau()
-
-    def victoire(self):
-        if self.tab == self.taquin_win:
-            print("You Win !")
-            exit()
+taquin_win = [[1, 2, 3, 4],
+              [5, 6, 7, 8],
+              [9, 10, 11, 12],
+              [13, 14, 15, 0]]
 
 
-Taquin()
+# Fonctions ------------------------------#
+
+def victoire(tableau):
+    global taquin_win
+
+    if tableau == taquin_win:
+        print("You Win !")
+        exit()
+
+
+def dessiner_tableau(canvas, tableau):
+    global CASES, LARG_CASES, HAUT_CASES
+
+    canvas.delete("all")
+    for i in range(CASES):
+        for j in range(CASES):
+            if tableau[j][i] != 0:
+                canvas.create_rectangle((i * LARG_CASES), (j * HAUT_CASES),
+                                        ((i + 1) * LARG_CASES),
+                                        ((j + 1) * HAUT_CASES), fill='grey', outline='white')
+                canvas.create_text(((2 * i + 1) * LARG_CASES / 2), ((2 * j + 1) * HAUT_CASES / 2),
+                                   text=tableau[j][i],
+                                   fill='black', font=('Helvetica', '32'))
+    victoire(tableau)
+
+
+def position(tableau, nombre):
+    global CASES
+
+    for i in range(CASES):
+        for j in range(CASES):
+            if tableau[i][j] == nombre:
+                return i, j
+
+
+def permuter(tableau, ligne, x, y, i, j):
+    while (x if ligne else y) != (j if ligne else i):
+        tableau[y][x], tableau[i][j] = tableau[i][j], tableau[y][x]
+        if ligne:
+            x += 1 if x <= j else -1
+        else:
+            y += 1 if y <= i else -1
+    return tableau
+
+
+def clic(event):
+    global LARG_CASES, HAUT_CASES
+    global tab, historique, tableau_canvas
+
+    x = event.x // LARG_CASES
+    y = event.y // HAUT_CASES
+    i, j = position(tab, 0)
+
+    if (y != i and x != j) or (y == i and x == j):
+        return
+
+    tableau = permuter(tab, y == i, x, y, i, j)
+
+    dessiner_tableau(tableau_canvas, tableau)
+    historique.append((i, j))
+
+
+def generer():
+    global CASES
+
+    t = [i for i in range(1, CASES ** 2)]
+    random.shuffle(t)
+    t.append(0)
+    t1 = [[t[i + j * CASES] for i in range(CASES)] for j in range(CASES)]
+    return t1
+
+
+def sauvegarder():
+    global CASES
+    global tab
+
+    with open("sauvegarde", "w") as fic:
+        for i in range(CASES):
+            for j in range(CASES):
+                fic.write(str(tab[i][j]) + "\n")
+
+
+def recharger():
+    global CASES
+    global tab, tableau_canvas
+
+    with open("sauvegarde", "r") as fic:
+        lignes = fic.readlines()
+        for i in range(CASES):
+            for j in range(CASES):
+                tab[i][j] = int(lignes[CASES * i + j])
+    dessiner_tableau(tableau_canvas, tab)
+
+
+def annuler():
+    global historique, tab, tableau_canvas
+
+    if historique:
+        y, x = historique[-1]
+        i, j = position(tab, 0)
+
+        tab = permuter(tab, y == i, x, y, i, j)
+
+        del historique[-1]
+
+        dessiner_tableau(tableau_canvas, tab)
+
+
+##################################################
+
+# Variables Globales---------------------#
+tab = generer()
+historique = []
+
+# ---------------Fenetre------------------#
+racine = tk.Tk()
+racine.title("Taquin")
+
+# ---Canvas---#
+tableau_canvas = tk.Canvas(racine, bg="black", width=LARGEUR, height=HAUTEUR)
+tableau_canvas.grid()
+dessiner_tableau(tableau_canvas, tab)
+
+
+# -------- Definition des Widgets------------------#
+bouton_sauvegarder = tk.Button(racine, text="Sauvegarder", command=sauvegarder)
+bouton_recharger = tk.Button(racine, text="Charger", command=recharger)
+bouton_annuler = tk.Button(racine, text="Annuler deplacement", command=annuler)
+
+# --------- Placement des widgets---------#
+bouton_sauvegarder.grid(row=5, column=0)
+bouton_recharger.grid(row=6, column=0)
+bouton_annuler.grid(row=7, column=0)
+
+# --------liaison d'evenement--------#
+tableau_canvas.bind("<Button-1>", clic)
+
+# ----Menu----#
+racine.mainloop()
+
