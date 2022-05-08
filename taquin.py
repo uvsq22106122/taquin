@@ -9,10 +9,6 @@
 import tkinter as tk
 import random
 
-
-import tkinter as tk
-import random
-
 class Taquin:
     def __init__(self):
         # Constantes-----------------------------#
