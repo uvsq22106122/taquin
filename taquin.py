@@ -29,7 +29,7 @@ class Taquin:
 
         # Variables Global------------------------#
         self.tab = self.generer()
-        self.history = []
+        self.history = [] #C'est la liste qui contient toutes les permutations (Pour pouvoir revenir en arrière)
 
         ##################################################
         # ---------------Fenetre------------------#
@@ -77,7 +77,7 @@ class Taquin:
         t1 = [[t[i + j * self.CASES] for i in range(self.CASES)] for j in range(self.CASES)]
         return t1
 
-    def get_position(self, num):
+    def get_position(self, num):  #permet de trouver un nombre dans le tableau ça cherche chaque ligne et chaque colonne
         for i in range(len(self.tab)):
             if num in self.tab[i]:
                 for j in range(len(self.tab[i])):
@@ -85,13 +85,16 @@ class Taquin:
                         return i, j
 
     def permuter(self, ligne, x, y, i, j):
-        while (x if ligne else y) != (j if ligne else i):
-            self.tab[y][x], self.tab[i][j] = self.tab[i][j], self.tab[y][x]
+        while (x if ligne else y) != (j if ligne else i): #c'est la variable qui dit si il faut décaler verticalement ou horizontalement: Si il faut décaler horizontalement, on décale chaque case une par une
+                                                          #Et à chaque fois on augmente x de 1 si il faut aller vers la droite ou le diminue de 1 si il faut aller vers la gauche
+                                                          #On s'arrète que quand x == j
+            self.tab[y][x], self.tab[i][j] = self.tab[i][j], self.tab[y][x]#permet de permuter les deux valeurs
             if ligne:
                 x += 1 if x <= j else -1
             else:
                 y += 1 if y <= i else -1
 
+#on récupère les coordonnées x et y de la case, et on regarde si la case cliqué est à coté de la case 0#
     def clic(self, event):
         x = event.x // self.LARG_CASES
         y = event.y // self.HAUT_CASES
@@ -100,7 +103,7 @@ class Taquin:
         if (y != i and x != j) or (y == i and x == j):
             return
 
-        self.permuter(y == i, x, y, i, j)
+        self.permuter(y == i, x, y, i, j) 
 
         self.dessiner_tableau()
         self.history.append((i, j))
