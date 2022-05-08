@@ -37,11 +37,11 @@ def init(canvas):
 #     print("clic aux coordonnées ", event.x , event.y)
 
 
-def affichage(event):
+def affichage(self,event):
     global LARG_CASES, HAUT_CASES, tab
-    j,  i= event.x, event.y
-    i=event.y//100
-    j=event.x//100
+    if(self.i==0):self.x,self.y=event.x,event.y
+    elif(self.i==1 or self.i==2):self.x1,self.y1=event.x,event.y
+
 
 #### suite deplacement à venir######
 
@@ -63,7 +63,7 @@ def generer(tab):
 
 
 
-taquin_gagner= [[1, 2, 3, 4],
+taquin_win= [[1, 2, 3, 4],
                 [5, 6, 7, 8],
                 [9, 10, 11, 12],
                 [13, 14, 15, 16]]
@@ -94,12 +94,9 @@ def recharger():
     fic.close()
     return init()
 
-
 def annuler():
     deplacement = deplacement - 1
     pass
-
-
 
 #Main-----------------------------------#
 
@@ -121,10 +118,9 @@ bouton_recharger = tk.Button(racine, text="Charger",command=recharger)
 bouton_annuler = tk.Button(racine, text="Annuler deplacement",command=annuler)
 
 #--------- Placement des widgets---------#
-bouton_sauvegarder.grid( row=7, column=0,)
-
-bouton_recharger.grid(row=5, column=0)
-bouton_annuler.grid(row=6, column=0) 
+bouton_sauvegarder.grid(row=5,column=0)
+bouton_recharger.grid(row=6,column=0)
+bouton_annuler.grid(row=7, column=0) 
 
 #--------liaison d'evenement--------#
 
